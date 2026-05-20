@@ -161,9 +161,8 @@ const AppRouter = {
     }
 };
 
-
 // ==========================================
-// 🔐 Auth Module Orchestrator (AppAuth)
+// 🔐 Auth Module Orchestrator (AppAuth) - FIXED SYNTAX
 // ==========================================
 const AppAuth = {
     currentUser: null,
@@ -183,6 +182,8 @@ const AppAuth = {
     async submitAuthForm(email, password) {
         const rememberCheck = document.getElementById('remember-me');
         const rememberMe = rememberCheck ? rememberCheck.checked : false;
+        
+        // 🌟 FIXED PERSISTENCE SYNTAX
         const persistence = rememberMe ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION;
         
         try {
@@ -190,7 +191,6 @@ const AppAuth = {
             const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
             this.checkUserRegistration(userCredential.user);
         } catch (error) {
-            // Setup seamless registration fallback layer if credentials not matching
             if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password') {
                 try {
                     const newUserCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
@@ -204,10 +204,12 @@ const AppAuth = {
         }
     },
 
-    // Google Authentication Module 
+    // Google Authentication Module
     async handleGoogleLogin() {
         const rememberCheck = document.getElementById('remember-me');
         const rememberMe = rememberCheck ? rememberCheck.checked : false;
+        
+        // 🌟 FIXED PERSISTENCE SYNTAX FOR GOOGLE TOO
         const persistence = rememberMe ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION;
         const provider = new firebase.auth.GoogleAuthProvider();
         
@@ -216,7 +218,9 @@ const AppAuth = {
             const result = await firebase.auth().signInWithPopup(provider);
             this.checkUserRegistration(result.user);
         } catch (error) {
-            alert("Google Sign-In dynamic block: " + error.message);
+            // 🌟 Google එකෙන් දෙන ඇත්තම Error එක බලාගන්න මේක දැම්මා මචන්
+            console.error("Google Auth Error Detail:", error);
+            alert("Google Sign-In failed: " + error.message);
         }
     },
 
@@ -276,6 +280,5 @@ const AppAuth = {
         AppRouter.switchView('auth-view');
     }
 };
-
 // DOM Core Loader Execution
 window.addEventListener('DOMContentLoaded', () => AppRouter.init());
