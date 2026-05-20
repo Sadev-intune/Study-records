@@ -1,0 +1,52 @@
+/* Antigravity Floating Core Loop */
+@keyframes floating {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+}
+
+@keyframes float-staggered {
+    0% { transform: translateY(-5px); }
+    50% { transform: translateY(5px); }
+    100% { transform: translateY(-5px); }
+}
+
+.antigravity {
+    animation: floating 4s ease-in-out infinite;
+}
+
+.portal-card.portal-unlocked {
+    animation: float-staggered 6s ease-in-out infinite;
+}
+
+/* Dynamic Entrance Keyframe Sequences */
+@keyframes zoomIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.view-section {
+    animation: zoomIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* SPA Folder Scale Transition Outliers */
+@keyframes scaleOutViewport {
+    from {
+        transform: scale(1);
+        opacity: 1;
+    }
+    to {
+        transform: scale(1.08);
+        opacity: 0;
+    }
+}
+
+.scale-exit {
+    animation: scaleOutViewport 0.4s ease-in forwards;
+}

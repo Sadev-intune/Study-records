@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ict_with_saranga | Study Tracker</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Poppins:wght@300;400;600&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+
+    <div id="custom-cursor"></div>
+
+    <canvas id="particle-canvas"></canvas>
+
+    <nav class="navbar">
+        <div class="nav-logo">ICT WITH <span class="logo-accent">SARANGA</span></div>
+        <div class="nav-status">
+            <span id="status-dot" class="status-online"></span>
+            <span id="status-text">System Online</span>
+        </div>
+        <div class="nav-profile" id="nav-profile" style="display: none;">
+            <i class="fa-solid fa-user-astronaut"></i>
+            <span id="user-display-name">Student Name</span>
+            <span id="user-display-grade" class="grade-badge">Grade 10</span>
+            <button id="logout-btn" class="btn-logout"><i class="fa-solid fa-power-off"></i></button>
+        </div>
+    </nav>
+
+    <main class="container">
+
+        <section id="auth-view" class="view-section">
+            <div class="auth-card glass-card">
+                <h2><i class="fa-solid fa-shuttle-space"></i> STUDENT PORTAL</h2>
+                <p class="auth-subtitle">Log your Maths & ICT hours to claim the Crown.</p>
+
+                <form id="auth-form">
+                    <div class="input-group">
+                        <i class="fa-solid fa-envelope"></i>
+                        <input type="email" id="auth-email" placeholder="Enter your Email" required>
+                    </div>
+                    <div class="input-group">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" id="auth-password" placeholder="Password" required>
+                    </div>
+                    <div class="input-group"
+                        style="display: flex; align-items: center; gap: 10px; margin-bottom: 1.25rem; font-size: 0.85rem; color: #9ca3af;">
+                        <input type="checkbox" id="remember-me" style="width: auto; cursor: pointer;">
+                        <label for="remember-me" style="cursor: pointer;">Remember Me (ලොග් වී සිටින්න)</label>
+                    </div>
+                    <button type="submit" id="auth-submit-btn" class="btn-primary">Initialize Access</button>
+                </form>
+                <div class="auth-divider"><span>OR</span></div>
+                <button id="google-signin-btn" class="btn-google"><i class="fa-brands fa-google"></i> Continue with
+                    Google</button>
+            </div>
+        </section>
+
+        <div id="grade-modal" class="modal-overlay" style="display: none;">
+            <div class="modal-card glass-card">
+                <h3>Select Your Grade</h3>
+                <p>This locks your academic portal for the season. Choose wisely.</p>
+                <div class="form-group" style="margin-top: 1rem; text-align: left;">
+                    <label for="student-register-name">ඔබගේ සම්පූර්ණ නම (Student Name):</label>
+                    <input type="text" id="student-register-name" placeholder="Enter your full name here" required>
+                </div>
+                <div class="grade-options-grid">
+                    <button class="grade-select-btn" data-grade="6">Grade 6</button>
+                    <button class="grade-select-btn" data-grade="7">Grade 7</button>
+                    <button class="grade-select-btn" data-grade="8">Grade 8</button>
+                    <button class="grade-select-btn" data-grade="9">Grade 9</button>
+                    <button class="grade-select-btn" data-grade="10">Grade 10</button>
+                    <button class="grade-select-btn" data-grade="11">Grade 11</button>
+                </div>
+            </div>
+        </div>
+
+        <section id="dashboard-view" class="view-section" style="display: none;">
+
+            <header class="hero-section">
+                <h1 class="hero-title">MASTER YOUR TIME, OWN YOUR FUTURE</h1>
+                <p class="hero-subtitle">Weekly leaderboard resets every Sunday at 23:59</p>
+            </header>
+
+            <section class="leaderboard-section">
+                <div class="leaderboard-controls">
+                    <h3><i class="fa-solid fa-crown text-gold"></i> Weekly Standings</h3>
+                    <div class="filter-switch">
+                        <button class="filter-btn active" data-filter="all">Global</button>
+                        <button class="filter-btn" data-filter="my">My Grade</button>
+                    </div>
+                </div>
+
+                <div class="podium-container">
+                    <div class="podium-column rank-2" id="podium-rank-2">
+                        <div class="podium-avatar"><i class="fa-solid fa-user-shield text-silver"></i></div>
+                        <div class="podium-student-name">--</div>
+                        <div class="podium-student-time">0m</div>
+                        <div class="podium-block"><span class="podium-number">2</span></div>
+                    </div>
+
+                    <div class="podium-column rank-1" id="podium-rank-1">
+                        <i class="fa-solid fa-crown gold-crown antigravity"></i>
+                        <div class="podium-avatar"><i class="fa-solid fa-user-astronaut text-gold"></i></div>
+                        <div class="podium-student-name">--</div>
+                        <div class="podium-student-time">0m</div>
+                        <div class="podium-block"><span class="podium-number">1</span></div>
+                    </div>
+
+                    <div class="podium-column rank-3" id="podium-rank-3">
+                        <div class="podium-avatar"><i class="fa-solid fa-user-graduate text-bronze"></i></div>
+                        <div class="podium-student-name">--</div>
+                        <div class="podium-student-time">0m</div>
+                        <div class="podium-block"><span class="podium-number">3</span></div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="portals-section">
+                <h2><i class="fa-solid fa-cubes-technological"></i> Academic Portals</h2>
+                <div class="portals-grid" id="portals-grid">
+                </div>
+            </section>
+        </section>
+
+        <section id="logger-view" class="view-section" style="display: none;">
+            <div class="back-nav">
+                <button id="back-to-dash-btn" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Orbit Back to
+                    Dashboard</button>
+            </div>
+
+            <div class="logger-layout">
+                <div class="logger-info glass-card">
+                    <h2 id="logger-grade-title">GRADE 10 PORTAL</h2>
+                    <p>Enter your study logs below. Each record is parsed and securely computed to update your
+                        leaderboard ranking instantly.</p>
+                    <div class="portal-badges">
+                        <span class="badge-ict"><i class="fa-solid fa-microchip"></i> ICT Portal</span>
+                        <span class="badge-maths"><i class="fa-solid fa-calculator"></i> Maths Portal</span>
+                    </div>
+                </div>
+
+                <div class="logger-card glass-card">
+                    <h3><i class="fa-solid fa-pen-to-square"></i> Log Hours</h3>
+                    <form id="study-logger-form">
+                        <div class="form-group">
+                            <label>Session Date</label>
+                            <input type="date" id="log-date" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Core Subject</label>
+                            <select id="log-subject" required>
+                                <option value="" disabled selected>Select Subject</option>
+                                <option value="Maths">Mathematics (Neon Cyan)</option>
+                                <option value="ICT">Information & Communication Tech (Electric Violet)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Duration (Minutes)</label>
+                            <input type="number" id="log-duration" min="5" max="480" placeholder="e.g. 60" required>
+                        </div>
+                        <button type="submit" class="btn-primary submit-glowing-btn">Broadcast to Sheets <i
+                                class="fa-solid fa-satellite-dish"></i></button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <canvas id="confetti-canvas"></canvas>
+
+    <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.4.0/firebase-auth-compat.js"></script>
+    
+
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/sheets.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>
