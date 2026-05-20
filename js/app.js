@@ -1,6 +1,4 @@
-// ==========================================
-// 🚀 SPA Core Orchestrator Module (AppRouter)
-// ==========================================
+// SPA Core Orchestrator Module
 const AppRouter = {
     views: ['auth-view', 'dashboard-view', 'logger-view'],
 
@@ -12,8 +10,7 @@ const AppRouter = {
 
     switchView(targetId) {
         this.views.forEach(v => {
-            const el = document.getElementById(v);
-            if (el) el.style.display = (v === targetId) ? 'block' : 'none';
+            document.getElementById(v).style.display = (v === targetId) ? 'block' : 'none';
         });
     },
 
@@ -22,9 +19,10 @@ const AppRouter = {
         document.getElementById('nav-profile').style.display = 'flex';
         document.getElementById('user-display-name').innerText = user.name;
         document.getElementById('user-display-grade').innerText = `Grade ${user.grade}`;
-        
+
+        // Demo reference removed - sets live active tag
         document.getElementById('status-text').innerText = CONFIG.isDemoMode ? "Database Localized" : "Cloud Sheets Live";
-        
+
         this.renderGradePortals(user.grade);
         this.refreshLeaderboard('all', user.grade);
     },
@@ -37,7 +35,7 @@ const AppRouter = {
             const card = document.createElement('div');
             const isLocked = (g !== Number(studentGrade));
             card.className = `portal-card glass-card ${isLocked ? 'portal-locked' : 'portal-unlocked'}`;
-            
+
             if (isLocked) {
                 card.innerHTML = `
                     <div class="lock-overlay">
@@ -66,7 +64,7 @@ const AppRouter = {
     zoomIntoLogger(grade) {
         const dashboard = document.getElementById('dashboard-view');
         dashboard.classList.add('scale-exit');
-        
+
         setTimeout(() => {
             dashboard.classList.remove('scale-exit');
             this.switchView('logger-view');
@@ -77,30 +75,30 @@ const AppRouter = {
 
     refreshLeaderboard(mode, currentGrade) {
         AppAPI.fetchLeaderboardStandings(mode, currentGrade, (standings) => {
+            const targets = [currentGrade, '6', '7', '8', '9', '10', '11'];
             let pool = [];
 
             if (mode === 'my') {
                 pool = standings[currentGrade] || [];
             } else {
+                // Aggregate rankings for global overview pipelines
                 Object.keys(standings).forEach(g => {
                     pool = pool.concat(standings[g]);
                 });
-                pool.sort((a,b) => b.totalDuration - a.totalDuration);
+                pool.sort((a, b) => b.totalDuration - a.totalDuration);
             }
 
-            for(let r=1; r<=3; r++) {
+            for (let r = 1; r <= 3; r++) {
                 const el = document.getElementById(`podium-rank-${r}`);
-                if (el) {
-                    const data = pool[r-1];
-                    el.querySelector('.podium-student-name').innerText = data ? data.name : '--';
-                    el.querySelector('.podium-student-time').innerText = data ? `${data.totalDuration}m` : '0m';
-                }
+                const data = pool[r - 1];
+                el.querySelector('.podium-student-name').innerText = data ? data.name : '--';
+                el.querySelector('.podium-student-time').innerText = data ? `${data.totalDuration}m` : '0m';
             }
         });
     },
 
     bindEvents() {
-        // Email/Password Access Form Submission
+        // Authentications forms bindings
         document.getElementById('auth-form').addEventListener('submit', (e) => {
             e.preventDefault();
             const email = document.getElementById('auth-email').value;
@@ -108,28 +106,14 @@ const AppRouter = {
             AppAuth.submitAuthForm(email, pass);
         });
 
-        // 🌟 GOOGLE SIGN-IN BUTTON BINDING FIXED
-        const googleBtn = document.getElementById('google-auth-btn');
-        if (googleBtn) {
-            googleBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                AppAuth.handleGoogleLogin();
-            });
-        }
-
-        // 🌟 GRADE MODAL SELECTION (With Custom Student Name Check)
+        // Grade modal option configurations
         document.querySelectorAll('.grade-select-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                const studentName = document.getElementById('student-register-name').value.trim();
-                if (!studentName) {
-                    alert("කරුණාකර ඔබගේ නම ඇතුළත් කරන්න!");
-                    return;
-                }
-                AppAuth.setGradeAndName(btn.getAttribute('data-grade'), studentName);
+                AppAuth.setGrade(btn.getAttribute('data-grade'));
             });
         });
 
-        // Toggle Settings Filtering Updates
+        // Toggle settings updates
         document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -138,12 +122,12 @@ const AppRouter = {
             });
         });
 
-        // Navigation Back Handlers
+        // Back navigations handlers
         document.getElementById('back-to-dash-btn').addEventListener('click', () => {
             this.loadDashboard(AppAuth.currentUser);
         });
 
-        // Logger Form Actions Sequence
+        // Logger form data submission sequences
         document.getElementById('study-logger-form').addEventListener('submit', (e) => {
             e.preventDefault();
             const subject = document.getElementById('log-subject').value;
@@ -161,124 +145,4 @@ const AppRouter = {
     }
 };
 
-// ==========================================
-// 🔐 Auth Module Orchestrator (AppAuth) - FIXED SYNTAX
-// ==========================================
-const AppAuth = {
-    currentUser: null,
-
-    init() {
-        // Firebase Auth State Listener - Persistent Session Handler
-        firebase.auth().onAuthStateChanged((user) => {
-            if (user) {
-                this.checkUserRegistration(user);
-            } else {
-                AppRouter.switchView('auth-view');
-            }
-        });
-    },
-
-    // Email & Password Handling Framework
-    async submitAuthForm(email, password) {
-        const rememberCheck = document.getElementById('remember-me');
-        const rememberMe = rememberCheck ? rememberCheck.checked : false;
-        
-        // 🌟 FIXED PERSISTENCE SYNTAX
-        const persistence = rememberMe ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION;
-        
-        try {
-            await firebase.auth().setPersistence(persistence);
-            const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
-            this.checkUserRegistration(userCredential.user);
-        } catch (error) {
-            if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password') {
-                try {
-                    const newUserCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
-                    this.showGradeModal(newUserCredential.user);
-                } catch (signUpError) {
-                    alert("Sign up configuration error: " + signUpError.message);
-                }
-            } else {
-                alert("Login core exception sequence: " + error.message);
-            }
-        }
-    },
-
-    // Google Authentication Module
-    async handleGoogleLogin() {
-        const rememberCheck = document.getElementById('remember-me');
-        const rememberMe = rememberCheck ? rememberCheck.checked : false;
-        
-        // 🌟 FIXED PERSISTENCE SYNTAX FOR GOOGLE TOO
-        const persistence = rememberMe ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION;
-        const provider = new firebase.auth.GoogleAuthProvider();
-        
-        try {
-            await firebase.auth().setPersistence(persistence);
-            const result = await firebase.auth().signInWithPopup(provider);
-            this.checkUserRegistration(result.user);
-        } catch (error) {
-            // 🌟 Google එකෙන් දෙන ඇත්තම Error එක බලාගන්න මේක දැම්මා මචන්
-            console.error("Google Auth Error Detail:", error);
-            alert("Google Sign-In failed: " + error.message);
-        }
-    },
-
-    // Verify User Records on Cloud Google Sheets Engine
-    async checkUserRegistration(user) {
-        try {
-            const response = await fetch(`${CONFIG.googleAppsScriptUrl}?action=getUserGrade&email=${encodeURIComponent(user.email)}`);
-            const result = await response.json();
-            
-            if (result.status === "found") {
-                this.currentUser = { email: user.email, name: result.name, grade: result.grade };
-                AppRouter.loadDashboard(this.currentUser);
-            } else {
-                this.showGradeModal(user);
-            }
-        } catch (e) {
-            console.error("System sheet synchronization pipeline fault:", e);
-            this.showGradeModal(user);
-        }
-    },
-
-    showGradeModal(user) {
-        this.currentUser = user; 
-        document.getElementById('grade-modal').style.display = 'flex';
-    },
-
-    // Commit Custom Metadata to Remote Sheets App Pipeline
-    async setGradeAndName(selectedGrade, studentName) {
-        const payload = {
-            action: "registerUser",
-            email: this.currentUser.email,
-            name: studentName, 
-            grade: selectedGrade
-        };
-
-        try {
-            const response = await fetch(CONFIG.googleAppsScriptUrl, {
-                method: 'POST',
-                body: JSON.stringify(payload)
-            });
-            
-            const result = await response.json();
-            if (result.status === "success") {
-                document.getElementById('grade-modal').style.display = 'none';
-                this.currentUser = { email: this.currentUser.email, name: studentName, grade: selectedGrade };
-                AppRouter.loadDashboard(this.currentUser);
-            }
-        } catch (e) {
-            alert("Sheet Registry Engine Pipeline Interrupted: " + e.message);
-        }
-    },
-
-    async logout() {
-        await firebase.auth().signOut();
-        this.currentUser = null;
-        document.getElementById('nav-profile').style.display = 'none';
-        AppRouter.switchView('auth-view');
-    }
-};
-// DOM Core Loader Execution
 window.addEventListener('DOMContentLoaded', () => AppRouter.init());

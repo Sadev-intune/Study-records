@@ -10,15 +10,6 @@ const AppAuth = {
             firebase.initializeApp(CONFIG.firebaseConfig);
             firebase.auth().onAuthStateChanged(user => this.handleStateChange(user));
         }
-        // App එක Initialize වෙන තැනට මේක දාන්න (e.g., inside constructor or init)
-        firebase.auth().onAuthStateChanged((user) => {
-            if (user) {
-                // ළමයා දැනටමත් ලොග් වෙලා ඉන්නවා නම් කෙලින්ම Google Sheet එකෙන් Grade එක චෙක් කරනවා
-                this.checkUserRegistration(user);
-            } else {
-                this.switchView('auth-view');
-            }
-        });
     },
 
     handleStateChange(user) {
@@ -71,9 +62,9 @@ const AppAuth = {
             localStorage.setItem(`mock_grade_${this.currentUser.email}`, grade);
             // Append student metadata tracking schemas localized
             let users = JSON.parse(localStorage.getItem('mock_db_users') || '[]');
-            users.push({ email: this.currentUser.email, name: this.currentUser.name, grade: grade });
+            users.push({email: this.currentUser.email, name: this.currentUser.name, grade: grade});
             localStorage.setItem('mock_db_users', JSON.stringify(users));
-
+            
             document.getElementById('grade-modal').style.display = 'none';
             AppRouter.loadDashboard(this.currentUser);
         } else {
